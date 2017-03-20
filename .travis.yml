@@ -14,6 +14,7 @@ before_install:
 after_success:
   - gox -arch="amd64" -os="windows linux darwin"
   - ls -lhR
+  - upx awsweb_*
 
 deploy:
   provider: releases
