@@ -11,8 +11,6 @@ addons:
 before_install:
   - go get github.com/mitchellh/gox
 
-script: go test # don't wanna run tests for urfave/cli
-
 after_success:
   - gox -arch="amd64" -os="windows linux darwin"
   - ls -lhR

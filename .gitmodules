@@ -1,3 +1,0 @@
-[submodule "vendor/gopkg.in/urfave/cli.v1"]
-	path = vendor/gopkg.in/urfave/cli.v1
-	url = https://github.com/urfave/cli.git
