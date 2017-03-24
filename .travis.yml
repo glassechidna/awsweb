@@ -10,6 +10,7 @@ addons:
 
 before_install:
   - go get github.com/mitchellh/gox
+  - go get github.com/inconshreveable/mousetrap
 
 after_success:
   - gox -arch="amd64" -os="windows linux darwin"
