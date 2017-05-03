@@ -12,7 +12,7 @@ before_install:
 after_success:
   - gox -arch="amd64" -os="windows linux darwin"
   - ls -lhR
-  - upx-3.93-amd64_linux/upx pstore_{windows_amd64.exe,linux_amd64}
+  - upx-3.93-amd64_linux/upx awsweb_{windows_amd64.exe,linux_amd64}
 
 deploy:
   provider: releases
