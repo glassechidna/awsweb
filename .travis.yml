@@ -3,19 +3,16 @@ language: go
 go:
   - 1.x
 
-addons:
-  apt:
-    packages:
-    - upx-ucl
-
 before_install:
   - go get github.com/mitchellh/gox
   - go get github.com/inconshreveable/mousetrap
+  - curl -sL -o upx.txz https://github.com/upx/upx/releases/download/v3.93/upx-3.93-amd64_linux.tar.xz
+  - tar -xvf upx.txz
 
 after_success:
   - gox -arch="amd64" -os="windows linux darwin"
   - ls -lhR
-  - upx awsweb_*
+  - upx-3.93-amd64_linux/upx pstore_{windows_amd64.exe,linux_amd64}
 
 deploy:
   provider: releases
