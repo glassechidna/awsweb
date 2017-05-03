@@ -60,6 +60,8 @@ func printEnvVar(name string, value string, shell string) {
 		fmt.Printf("$Env:%s = \"%s\"\n", name, value)
 	case "cmd":
 		fmt.Printf("SET %s=%s\n", name, value)
+	case "docker":
+		fmt.Printf("-e %s=\"%s\" ", name, value)
 	default:
 		fmt.Printf("export %s=\"%s\"\n", name, value)
 	}
