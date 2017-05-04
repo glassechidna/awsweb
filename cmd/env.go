@@ -20,6 +20,7 @@ import (
 	"github.com/glassechidna/awsweb/shared"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 // envCmd represents the env command
@@ -32,37 +33,58 @@ func init() {
 		Generates environment variables that can be eval()ed in *nix terminals
 		or Invoke-Expression'd in Powershell, or whatever you do in cmd.exe'`,
 		Run: func(cmd *cobra.Command, args []string) {
-			profile := args[0]
-			mfaSecret := viper.GetString("mfa-secret")
 			shell := viper.GetString("shell")
-			doEnv(profile, mfaSecret, shell)
+			unset, _ := cmd.Flags().GetBool("unset")
+
+			creds := credentials.Value{}
+			region := ""
+
+			if !unset {
+				profile := args[0]
+				mfaSecret := viper.GetString("mfa-secret")
+				creds, region = shared.GetCreds(profile, mfaSecret)
+			}
+
+			doEnv(creds, region, shell, unset)
 		},
 	}
 
 	RootCmd.AddCommand(envCmd)
 
+	envCmd.Flags().Bool("unset", false, "Generate output to unset env vars")
 	envCmd.PersistentFlags().StringP("shell", "", "", "One of powershell, cmd, or bash")
 	viper.BindPFlag("shell", envCmd.PersistentFlags().Lookup("shell"))
 }
 
-func doEnv(profile string, mfaSecret string, shell string) {
-	creds, region := shared.GetCreds(profile, mfaSecret)
-	printEnvVar("AWS_ACCESS_KEY_ID", creds.AccessKeyID, shell)
-	printEnvVar("AWS_SECRET_ACCESS_KEY", creds.SecretAccessKey, shell)
-	printEnvVar("AWS_SESSION_TOKEN", creds.SessionToken, shell)
-	printEnvVar("AWS_DEFAULT_REGION", region, shell)
-	printEnvVar("AWS_REGION", region, shell)
+func doEnv(creds credentials.Value, region, shell string, unset bool) {
+	printEnvVar("AWS_ACCESS_KEY_ID", creds.AccessKeyID, shell, unset)
+	printEnvVar("AWS_SECRET_ACCESS_KEY", creds.SecretAccessKey, shell, unset)
+	printEnvVar("AWS_SESSION_TOKEN", creds.SessionToken, shell, unset)
+	printEnvVar("AWS_DEFAULT_REGION", region, shell, unset)
+	printEnvVar("AWS_REGION", region, shell, unset)
 }
 
-func printEnvVar(name string, value string, shell string) {
+func printEnvVar(name, value, shell string, unset bool) {
 	switch shell {
 	case "powershell":
-		fmt.Printf("$Env:%s = \"%s\"\n", name, value)
+		if unset {
+			fmt.Printf("Remove-Item Env:\\%s\n", name)
+		} else {
+			fmt.Printf("$Env:%s = \"%s\"\n", name, value)
+		}
 	case "cmd":
-		fmt.Printf("SET %s=%s\n", name, value)
+		if unset {
+			fmt.Printf("SET %s=\n", name)
+		} else {
+			fmt.Printf("SET %s=%s\n", name, value)
+		}
 	case "docker":
 		fmt.Printf("-e %s=\"%s\" ", name, value)
 	default:
-		fmt.Printf("export %s=\"%s\"\n", name, value)
+		if unset {
+			fmt.Printf("unset %s\n", name)
+		} else {
+			fmt.Printf("export %s=\"%s\"\n", name, value)
+		}
 	}
 }
