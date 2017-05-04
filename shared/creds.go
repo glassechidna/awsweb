@@ -9,7 +9,7 @@ import (
 )
 
 func GetCreds(profile string, mfaSecret string) (credentials.Value, string) {
-	stscreds.DefaultDuration = 3600 // TODO: issue #11 make this configurable
+	stscreds.DefaultDuration = 3600 * time.Second // TODO: issue #11 make this configurable
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState:       session.SharedConfigEnable,
