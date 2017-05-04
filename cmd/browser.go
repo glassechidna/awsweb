@@ -19,10 +19,14 @@ import (
 	"time"
 	"encoding/json"
 	"net/url"
-	"github.com/skratchdot/open-golang/open"
 	"net/http"
 	"github.com/glassechidna/awsweb/shared"
 	"github.com/spf13/viper"
+	"runtime"
+	"os"
+	"path"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"os/exec"
 )
 
 func init() {
@@ -35,7 +39,9 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			profile := args[0]
 			mfaSecret := viper.GetString("mfa-secret")
-			doBrowser(profile, mfaSecret)
+
+			creds, region := shared.GetCreds(profile, mfaSecret)
+			doBrowser(creds, region, profile)
 		},
 	}
 
@@ -58,9 +64,7 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func doBrowser(profile string, mfaSecret string) {
-	creds, region := shared.GetCreds(profile, mfaSecret)
-
+func doBrowser(creds credentials.Value, region, profile string) {
 	sessionJsonMap := map[string]string{
 		"sessionId":    creds.AccessKeyID,
 		"sessionKey":   creds.SecretAccessKey,
@@ -77,6 +81,29 @@ func doBrowser(profile string, mfaSecret string) {
 
 	destinationUrl := "https://" + region + ".console.aws.amazon.com/"
 	loginUrl := "https://signin.aws.amazon.com/federation?Action=login&SigninToken=" + escapedSigninToken + "&Destination=" + destinationUrl
-	open.Start(loginUrl)
+	openChrome(loginUrl, profile)
+}
+
+func openUrl(url string, flags... string) {
+	var args []string
+
+	switch runtime.GOOS {
+	case "darwin":
+		args = []string{"open", "-n", url, "--args"}
+	case "windows":
+		args = []string{"cmd", "/c", "start", url}
+	default:
+		args = []string{"xdg-open", url}
+	}
+	args = append(args, flags...)
+
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Start()
+}
+
+func openChrome(url, profile string) {
+	userDataDir := path.Join(os.TempDir(), "awsweb-" + profile)
+	userDataDirFlag := "--user-data-dir=" + userDataDir // TODO: this is chrome specific (see #13)
+	openUrl(url, userDataDirFlag)
 }
 
