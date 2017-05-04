@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/pquerna/otp/totp"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	"log"
 )
 
 func GetCreds(profile string, mfaSecret string) (credentials.Value, string) {
@@ -19,7 +20,11 @@ func GetCreds(profile string, mfaSecret string) (credentials.Value, string) {
 		},
 	}))
 
-	creds, _ := sess.Config.Credentials.Get()
+	creds, err := sess.Config.Credentials.Get()
+
+	if err != nil {
+		log.Panicf(err.Error())
+	}
 
 	region := sess.Config.Region
 	if len(*region) == 0 {
