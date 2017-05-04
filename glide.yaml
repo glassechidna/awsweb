@@ -1,0 +1,15 @@
+package: github.com/glassechidna/awsweb
+import:
+- package: github.com/aws/aws-sdk-go
+  version: ^1.8.19
+  subpackages:
+  - aws/credentials
+  - aws/session
+- package: github.com/pquerna/otp
+  subpackages:
+  - totp
+- package: github.com/skratchdot/open-golang
+  subpackages:
+  - open
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
