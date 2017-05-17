@@ -27,6 +27,7 @@ import (
 	"path"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"os/exec"
+	"strings"
 )
 
 func init() {
@@ -91,7 +92,7 @@ func openUrl(url string, flags... string) {
 	case "darwin":
 		args = []string{"open", "-n", url, "--args"}
 	case "windows":
-		args = []string{"cmd", "/c", "start", url}
+		args = []string{"cmd", "/c", "start", "chrome", strings.Replace(url, "&", "^&", -1)}
 	default:
 		args = []string{"xdg-open", url}
 	}
