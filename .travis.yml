@@ -15,7 +15,7 @@ script: ls
 
 after_success:
   - gox -arch="amd64" -os="windows linux darwin"
-  - ls -lhR
+  - ls -lh
   - upx-3.93-amd64_linux/upx awsweb_{windows_amd64.exe,linux_amd64}
 
 deploy:
