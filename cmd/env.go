@@ -45,7 +45,7 @@ func init() {
 				creds, region = shared.GetCreds(profile, mfaSecret)
 			}
 
-			doEnv(creds, region, shell, unset)
+			doEnv(creds, profile, region, shell, unset)
 		},
 	}
 
@@ -56,12 +56,13 @@ func init() {
 	viper.BindPFlag("shell", envCmd.PersistentFlags().Lookup("shell"))
 }
 
-func doEnv(creds credentials.Value, region, shell string, unset bool) {
+func doEnv(creds credentials.Value, profile, region, shell string, unset bool) {
 	printEnvVar("AWS_ACCESS_KEY_ID", creds.AccessKeyID, shell, unset)
 	printEnvVar("AWS_SECRET_ACCESS_KEY", creds.SecretAccessKey, shell, unset)
 	printEnvVar("AWS_SESSION_TOKEN", creds.SessionToken, shell, unset)
 	printEnvVar("AWS_DEFAULT_REGION", region, shell, unset)
 	printEnvVar("AWS_REGION", region, shell, unset)
+	printEnvVar("AWSWEB_PROFILE", profile, shell, unset)
 }
 
 func printEnvVar(name, value, shell string, unset bool) {
