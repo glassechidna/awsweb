@@ -105,6 +105,6 @@ func openUrl(url string, flags... string) {
 func openChrome(url, profile string) {
 	userDataDir := path.Join(os.TempDir(), "awsweb-" + profile)
 	userDataDirFlag := "--user-data-dir=" + userDataDir // TODO: this is chrome specific (see #13)
-	openUrl(url, userDataDirFlag)
+	openUrl(url, userDataDirFlag, "--no-first-run")
 }
 
