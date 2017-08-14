@@ -38,7 +38,11 @@ func init() {
 		Long: `Assumes the given role and logs you into the AWS web console
 		in the role's default region.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			profile := args[0]
+			profile := ""
+			if len(args) > 0 {
+				profile = args[0]
+			}
+
 			mfaSecret := viper.GetString("mfa-secret")
 
 			creds, region := shared.GetCreds(profile, mfaSecret)

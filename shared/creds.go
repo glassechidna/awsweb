@@ -12,14 +12,18 @@ import (
 func GetCreds(profile string, mfaSecret string) (credentials.Value, string) {
 	stscreds.DefaultDuration = 3600 * time.Second // TODO: issue #11 make this configurable
 
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState:       session.SharedConfigEnable,
-		Profile:                 profile,
+	options := session.Options{
+		SharedConfigState: session.SharedConfigEnable,
 		AssumeRoleTokenProvider: func() (string, error) {
 			return totp.GenerateCode(mfaSecret, time.Now())
 		},
-	}))
+	}
 
+	if len(profile) > 0 {
+		options.Profile = profile
+	}
+
+	sess := session.Must(session.NewSessionWithOptions(options))
 	creds, err := sess.Config.Credentials.Get()
 
 	if err != nil {
