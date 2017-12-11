@@ -15,7 +15,7 @@ script: gox -arch="amd64" -os="windows linux darwin"
 
 after_success:
   - ls -lh
-  - upx-3.93-amd64_linux/upx awsweb_*
+  - upx-3.94-amd64_linux/upx awsweb_*
 
 deploy:
   provider: releases
