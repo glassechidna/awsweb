@@ -21,6 +21,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"strings"
+	"os"
 )
 
 // envCmd represents the env command
@@ -58,12 +60,34 @@ func init() {
 }
 
 func doEnv(creds credentials.Value, profile, region, shell string, unset bool) {
+	printExplanation(shell)
 	printEnvVar("AWS_ACCESS_KEY_ID", creds.AccessKeyID, shell, unset)
 	printEnvVar("AWS_SECRET_ACCESS_KEY", creds.SecretAccessKey, shell, unset)
 	printEnvVar("AWS_SESSION_TOKEN", creds.SessionToken, shell, unset)
 	printEnvVar("AWS_DEFAULT_REGION", region, shell, unset)
 	printEnvVar("AWS_REGION", region, shell, unset)
 	printEnvVar("AWSWEB_PROFILE", profile, shell, unset)
+}
+
+func printExplanation(shell string) {
+	switch shell {
+	case "powershell":
+		fmt.Printf(`
+# The output of this command is meant to be eval'd, i.e. re-run this command:
+#
+# $Cmd = (awsweb env --shell powershell mycompany-prod) | Out-String
+# Invoke-Expression $Cmd
+`)
+	case "cmd":
+	case "docker":
+	default:
+		command := strings.Join(os.Args, " ")
+		fmt.Printf(`
+# The output of this command is meant to be eval'd, i.e. re-run this command:
+#
+# eval $(%s)
+`, command)
+	}
 }
 
 func printEnvVar(name, value, shell string, unset bool) {
