@@ -41,7 +41,7 @@ func init() {
 			profile := ""
 
 			if !unset {
-				profile = args[0]
+				if len(args) > 0 { profile = args[0] }
 				mfaSecret := viper.GetString("mfa-secret")
 				creds, region = shared.GetCreds(profile, mfaSecret)
 			}
