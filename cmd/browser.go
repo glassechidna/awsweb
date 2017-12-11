@@ -22,31 +22,31 @@ import (
 	"net/http"
 	"github.com/glassechidna/awsweb/shared"
 	"github.com/spf13/viper"
-	"runtime"
-	"os"
-	"path"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"os/exec"
-	"strings"
+	"github.com/glassechidna/awsweb/browser"
 )
 
 func init() {
-	// browserCmd represents the browser command
 	var browserCmd = &cobra.Command{
 		Use:   "browser",
 		Short: "Open browser window at AWS web console",
 		Long: `Assumes the given role and logs you into the AWS web console
 		in the role's default region.`,
 		Run: func(cmd *cobra.Command, args []string) {
+			browserName := ""
 			profile := ""
-			if len(args) > 0 {
+
+			if len(args) == 1 {
 				profile = args[0]
+			} else if len(args) == 2 {
+				browserName = args[0]
+				profile = args[1]
 			}
 
 			mfaSecret := viper.GetString("mfa-secret")
 
 			creds, region := shared.GetCreds(profile, mfaSecret)
-			doBrowser(creds, region, profile)
+			doBrowser(creds, browserName, region, profile)
 		},
 	}
 
@@ -69,7 +69,13 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func doBrowser(creds credentials.Value, region, profile string) {
+func doBrowser(creds credentials.Value, browserName, region, profile string) {
+	loginUrl := getLoginUrl(creds, region)
+	b, _ := browserByName(browserName)
+	b.Launch(loginUrl, profile)
+}
+
+func getLoginUrl(creds credentials.Value, region string) string {
 	sessionJsonMap := map[string]string{
 		"sessionId":    creds.AccessKeyID,
 		"sessionKey":   creds.SecretAccessKey,
@@ -86,29 +92,19 @@ func doBrowser(creds credentials.Value, region, profile string) {
 
 	destinationUrl := "https://" + region + ".console.aws.amazon.com/"
 	loginUrl := "https://signin.aws.amazon.com/federation?Action=login&SigninToken=" + escapedSigninToken + "&Destination=" + destinationUrl
-	openChrome(loginUrl, profile)
+
+	return loginUrl
 }
 
-func openUrl(url string, flags... string) {
-	var args []string
-
-	switch runtime.GOOS {
-	case "darwin":
-		args = []string{"open", "-n", url, "--args"}
-	case "windows":
-		args = []string{"cmd", "/c", "start", "chrome", strings.Replace(url, "&", "^&", -1)}
+func browserByName(name string) (browser.Browser, error) {
+	switch name {
+	case browser.MozillaFirefoxName:
+		return &browser.MozillaFirefox{}, nil
+	case browser.GoogleChromeName:
+		return &browser.GoogleChrome{}, nil
+	case "":
+		return browser.DefaultBrowser()
 	default:
-		args = []string{"xdg-open", url}
+		return nil, nil
 	}
-	args = append(args, flags...)
-
-	cmd := exec.Command(args[0], args[1:]...)
-	cmd.Start()
 }
-
-func openChrome(url, profile string) {
-	userDataDir := path.Join(os.TempDir(), "awsweb-" + profile)
-	userDataDirFlag := "--user-data-dir=" + userDataDir // TODO: this is chrome specific (see #13)
-	openUrl(url, userDataDirFlag, "--no-first-run")
-}
-

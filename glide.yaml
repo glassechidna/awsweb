@@ -13,3 +13,5 @@ import:
   - open
 - package: github.com/spf13/cobra
 - package: github.com/spf13/viper
+- package: github.com/DHowett/go-plist
+- package: github.com/mitchellh/go-homedir
