@@ -2,7 +2,6 @@ package browser
 
 import (
 	"os/exec"
-	"fmt"
 )
 
 func macCmd(url string, bundleId string, extraArgs []string) {
