@@ -47,9 +47,6 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.awsweb.yaml)")
-	RootCmd.PersistentFlags().StringP("mfa-secret", "", "", "")
-
-	viper.BindPFlag("mfa-secret", RootCmd.PersistentFlags().Lookup("mfa-secret"))
 }
 
 // initConfig reads in config file and ENV variables if set.

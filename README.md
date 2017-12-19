@@ -16,7 +16,7 @@ page. Download the binary for your platform and place it somewhere in your `PATH
 
 ## Setup
 
-Your `~/.aws/config` should look something like this:
+Your `~/.aws/config` should *already* look something like this:
 
 ```
 [mycompany]
@@ -37,15 +37,19 @@ aws_access_key_id = AKIA...
 aws_secret_access_key = qGrg....
 ```
 
+Now all your need to do is add your AWS MFA secret to your credentials as such:
+
+```
+[mycompany]
+aws_access_key_id = AKIA...
+aws_secret_access_key = qGrg....
+mfa_secret = RXPEAIVTCZK...
+```
+
 ## Usage
 
-You can then do `awsweb --mfa-secret SOMESECRET browser mycompany-prod` and a browser
-window will pop up. Or `eval "$(awsweb --mfa-secret SOMESECRET env mycompany-prod)"`.
-Alternatively you can store your MFA secret in `~/.awsweb.yml` in the following format:
-
-```yaml
-mfa-secret: SOMESECRET
-```
+You can then do `awsweb browser mycompany-prod` and a browser window will pop up. Or 
+`eval "$(awsweb env mycompany-prod)"`.
 
 ### Powershell
 

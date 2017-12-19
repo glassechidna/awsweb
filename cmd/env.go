@@ -20,7 +20,6 @@ import (
 	"github.com/glassechidna/awsweb/shared"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"strings"
 	"os"
 )
@@ -38,17 +37,17 @@ func init() {
 			shell := viper.GetString("shell")
 			unset, _ := cmd.Flags().GetBool("unset")
 
-			creds := credentials.Value{}
-			region := ""
 			profile := ""
-
-			if !unset {
-				if len(args) > 0 { profile = args[0] }
-				mfaSecret := viper.GetString("mfa-secret")
-				creds, region = shared.GetCreds(profile, mfaSecret)
+			if len(args) > 0 {
+				profile = args[0]
 			}
 
-			doEnv(creds, profile, region, shell, unset)
+			profileConfig := shared.ProfileConfig{}
+			if !unset {
+				profileConfig = shared.GetCreds(profile)
+			}
+
+			doEnv(profileConfig, shell, unset)
 		},
 	}
 
@@ -59,14 +58,14 @@ func init() {
 	viper.BindPFlag("shell", envCmd.PersistentFlags().Lookup("shell"))
 }
 
-func doEnv(creds credentials.Value, profile, region, shell string, unset bool) {
-	printExplanation(shell)
+func doEnv(profileConfig shared.ProfileConfig, shell string, unset bool) {
+	creds, _ := profileConfig.Credentials.Get()
 	printEnvVar("AWS_ACCESS_KEY_ID", creds.AccessKeyID, shell, unset)
 	printEnvVar("AWS_SECRET_ACCESS_KEY", creds.SecretAccessKey, shell, unset)
 	printEnvVar("AWS_SESSION_TOKEN", creds.SessionToken, shell, unset)
-	printEnvVar("AWS_DEFAULT_REGION", region, shell, unset)
-	printEnvVar("AWS_REGION", region, shell, unset)
-	printEnvVar("AWSWEB_PROFILE", profile, shell, unset)
+	printEnvVar("AWS_DEFAULT_REGION", profileConfig.Region, shell, unset)
+	printEnvVar("AWS_REGION", profileConfig.Region, shell, unset)
+	printEnvVar("AWSWEB_PROFILE", profileConfig.Name, shell, unset)
 }
 
 func printExplanation(shell string) {

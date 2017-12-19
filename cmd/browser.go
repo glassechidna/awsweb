@@ -21,8 +21,6 @@ import (
 	"net/url"
 	"net/http"
 	"github.com/glassechidna/awsweb/shared"
-	"github.com/spf13/viper"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/glassechidna/awsweb/browser"
 )
 
@@ -43,10 +41,8 @@ func init() {
 				profile = args[1]
 			}
 
-			mfaSecret := viper.GetString("mfa-secret")
-
-			creds, region := shared.GetCreds(profile, mfaSecret)
-			doBrowser(creds, browserName, region, profile)
+			profileConfig := shared.GetCreds(profile)
+			doBrowser(profileConfig, browserName)
 		},
 	}
 
@@ -69,13 +65,15 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func doBrowser(creds credentials.Value, browserName, region, profile string) {
-	loginUrl := getLoginUrl(creds, region)
+func doBrowser(profileConfig shared.ProfileConfig, browserName string) {
+	loginUrl := getLoginUrl(profileConfig)
 	b, _ := browserByName(browserName)
-	b.Launch(loginUrl, profile)
+	b.Launch(loginUrl, profileConfig.Name)
 }
 
-func getLoginUrl(creds credentials.Value, region string) string {
+func getLoginUrl(profileConfig shared.ProfileConfig) string {
+	creds, _ := profileConfig.Credentials.Get()
+
 	sessionJsonMap := map[string]string{
 		"sessionId":    creds.AccessKeyID,
 		"sessionKey":   creds.SecretAccessKey,
@@ -90,7 +88,7 @@ func getLoginUrl(creds credentials.Value, region string) string {
 	getJson(getSigninTokenUrl, signinTokenResponse)
 	escapedSigninToken := url.QueryEscape(signinTokenResponse.SigninToken)
 
-	destinationUrl := "https://" + region + ".console.aws.amazon.com/"
+	destinationUrl := "https://" + profileConfig.Region + ".console.aws.amazon.com/"
 	loginUrl := "https://signin.aws.amazon.com/federation?Action=login&SigninToken=" + escapedSigninToken + "&Destination=" + destinationUrl
 
 	return loginUrl
