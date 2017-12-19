@@ -37,13 +37,21 @@ aws_access_key_id = AKIA...
 aws_secret_access_key = qGrg....
 ```
 
-Now all your need to do is add your AWS MFA secret to your credentials as such:
+Now all your need to do is add your AWS MFA secret to your _credentials_ as such:
 
 ```
 [mycompany]
 aws_access_key_id = AKIA...
 aws_secret_access_key = qGrg....
 mfa_secret = RXPEAIVTCZK...
+```
+
+You should also add the MFA serial number to your _config_ file in the "source" account, e.g.
+
+```
+[mycompany]
+region = ap-southeast-2
+mfa_serial = arn:aws:iam::0987654321:mfa/aidan.steele@example.com
 ```
 
 ## Usage

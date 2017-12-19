@@ -13,6 +13,7 @@ import (
 	"github.com/go-ini/ini"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"os"
+	"github.com/pkg/errors"
 )
 
 type awsConfigFiles struct {
@@ -47,69 +48,69 @@ func profileConfig(cfg awsConfigFiles, profile string) (*ProfileConfig, error) {
 			region = sourceRegion
 		}
 
-		sourceCredsSection, err := cfg.cred.GetSection(sourceProfile.String())
+		roleArn := section.Key("role_arn").String()
+		if len(roleArn) == 0 { return nil, errors.New("empty role arn") }
+
+		roleCreds, err := roleCredentials(sourceConfig.Credentials, roleArn)
 		if err != nil { return nil, err }
-
-		mfaSecret := sourceCredsSection.Key("mfa_secret")
-		var mfaProvider func() (string, error)
-
-		if len(mfaSecret.String()) == 0 {
-			mfaProvider = stscreds.StdinTokenProvider
-		} else {
-			mfaProvider = func() (string, error) {
-				return totp.GenerateCode(mfaSecret.String(), time.Now())
-			}
-		}
-
-		mfaSerial, err := section.GetKey("mfa_serial")
-		if err != nil { return nil, err }
-
-		roleArn, err := section.GetKey("role_arn")
-		if err != nil { return nil, err }
-
-		creds, _ := mfaAuthenticatedCredentials(sourceConfig.Credentials, mfaSerial.String(), mfaProvider)
-		sess := session.Must(session.NewSession(&aws.Config{
-			Credentials: creds,
-		}))
-
-		api := sts.New(sess)
-
-		roleSessionName := fmt.Sprintf("awsweb-%d", time.Now().Second())
-		resp, err := api.AssumeRole(&sts.AssumeRoleInput{
-			RoleArn: aws.String(roleArn.String()),
-			RoleSessionName: &roleSessionName,
-		})
-		if err != nil { return nil, err }
-
-		c := resp.Credentials
-		roleCreds := credentials.NewStaticCredentials(*c.AccessKeyId, *c.SecretAccessKey, *c.SessionToken)
 
 		return &ProfileConfig{
-			Name: profile,
-			Region: region,
+			Name:        profile,
+			Region:      region,
 			Credentials: roleCreds,
 		}, nil
 	} else {
 		credsSection, err := cfg.cred.GetSection(profile)
 		if err != nil { return nil, err }
 
-		id, err := credsSection.GetKey("aws_access_key_id")
-		if err != nil { return nil, err }
+		id := credsSection.Key("aws_access_key_id").String()
+		secret := credsSection.Key("aws_secret_access_key").String()
+		token := credsSection.Key("aws_session_token").String()
 
-		secret, err := credsSection.GetKey("aws_secret_access_key")
-		if err != nil { return nil, err }
+		if len(id) == 0 { return nil, errors.New("empty access key id") }
+		if len(secret) == 0 { return nil, errors.New("empty secret access key") }
+		creds := credentials.NewStaticCredentials(id, secret, token)
 
-		token := credsSection.Key("aws_session_token")
+		mfaSerial := section.Key("mfa_serial").String()
+		if len(mfaSerial) > 0 {
+			mfaSecret := credsSection.Key("mfa_secret").String()
+			creds, err = mfaAuthenticatedCredentials(creds, mfaSerial, mfaProvider(mfaSecret))
+			if err != nil { return nil, err }
+		}
 
 		return &ProfileConfig{
-			Name: profile,
-			Region: region,
-			Credentials: credentials.NewStaticCredentials(
-				id.String(),
-				secret.String(),
-				token.String(),
-			),
+			Name:        profile,
+			Region:      region,
+			Credentials: creds,
 		}, nil
+	}
+}
+
+func roleCredentials(sourceCreds *credentials.Credentials, roleArn string) (*credentials.Credentials, error) {
+	sess := session.Must(session.NewSession(&aws.Config{
+		Credentials: sourceCreds,
+	}))
+
+	api := sts.New(sess)
+
+	roleSessionName := fmt.Sprintf("awsweb-%d", time.Now().Second())
+	resp, err := api.AssumeRole(&sts.AssumeRoleInput{
+		RoleArn: aws.String(roleArn),
+		RoleSessionName: &roleSessionName,
+	})
+	if err != nil { return nil, err }
+
+	c := resp.Credentials
+	return credentials.NewStaticCredentials(*c.AccessKeyId, *c.SecretAccessKey, *c.SessionToken), nil
+}
+
+func mfaProvider(mfaSecret string) func() (string, error) {
+	if len(mfaSecret) == 0 {
+		return stscreds.StdinTokenProvider
+	} else {
+		return func() (string, error) {
+			return totp.GenerateCode(mfaSecret, time.Now())
+		}
 	}
 }
 
