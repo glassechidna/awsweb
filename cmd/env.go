@@ -104,7 +104,7 @@ func printEnvVar(name, value, shell string, unset bool) {
 			fmt.Printf("SET %s=%s\n", name, value)
 		}
 	case "docker":
-		fmt.Printf("-e %s=\"%s\" ", name, value)
+		fmt.Printf("-e %s=%s ", name, value)
 	default:
 		if unset {
 			fmt.Printf("unset %s\n", name)
