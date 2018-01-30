@@ -20,7 +20,6 @@ import (
 	"encoding/json"
 	"net/url"
 	"net/http"
-	"github.com/glassechidna/awsweb/shared"
 	"github.com/glassechidna/awsweb/browser"
 )
 
@@ -41,8 +40,7 @@ func init() {
 				profile = args[1]
 			}
 
-			profileConfig := shared.GetCreds(profile)
-			doBrowser(profileConfig, browserName)
+			doBrowser(getProvider(profile), browserName, profile)
 		},
 	}
 
@@ -65,14 +63,14 @@ func getJson(url string, target interface{}) error {
 	return json.NewDecoder(r.Body).Decode(target)
 }
 
-func doBrowser(profileConfig shared.ProfileConfig, browserName string) {
-	loginUrl := getLoginUrl(profileConfig)
+func doBrowser(provider CredRegionProvider, browserName, name string) {
+	loginUrl := getLoginUrl(provider)
 	b, _ := browserByName(browserName)
-	b.Launch(loginUrl, profileConfig.Name)
+	b.Launch(loginUrl, name)
 }
 
-func getLoginUrl(profileConfig shared.ProfileConfig) string {
-	creds, _ := profileConfig.Credentials.Get()
+func getLoginUrl(provider CredRegionProvider) string {
+	creds, _ := provider.Retrieve()
 
 	sessionJsonMap := map[string]string{
 		"sessionId":    creds.AccessKeyID,
@@ -88,7 +86,7 @@ func getLoginUrl(profileConfig shared.ProfileConfig) string {
 	getJson(getSigninTokenUrl, signinTokenResponse)
 	escapedSigninToken := url.QueryEscape(signinTokenResponse.SigninToken)
 
-	destinationUrl := "https://" + profileConfig.Region + ".console.aws.amazon.com/"
+	destinationUrl := "https://" + provider.Region() + ".console.aws.amazon.com/"
 	loginUrl := "https://signin.aws.amazon.com/federation?Action=login&SigninToken=" + escapedSigninToken + "&Destination=" + destinationUrl
 
 	return loginUrl

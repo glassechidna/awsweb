@@ -17,3 +17,4 @@ import:
 - package: github.com/mitchellh/go-homedir
 - package: github.com/pkg/errors
   version: ^0.8.0
+- package: github.com/glassechidna/awscredcache

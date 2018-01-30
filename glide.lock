@@ -1,8 +1,8 @@
-hash: 3f53e4de46d80f78df8779c140bbf2979a56f589b314404c3f465a24810a2cd0
-updated: 2017-12-19T22:06:13.775976+11:00
+hash: 25b3f61a51d490b5e27aca86cef648a65f597405462e6a6a70b10e942947782e
+updated: 2018-01-31T09:21:45.200082+11:00
 imports:
 - name: github.com/aws/aws-sdk-go
-  version: ab772a0ae5d958feb51cba2a65eca3911882d791
+  version: 1b176c5c6b57adb03bb982c21930e708ebca5a77
   subpackages:
   - aws
   - aws/awserr
@@ -36,8 +36,12 @@ imports:
   version: 233df3c4f07b0c562da0e8a6fb850681ac49bb90
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
+- name: github.com/glassechidna/awscredcache
+  version: 4f9beba3cd3a1153e85dd18473543e34d12af863
+  subpackages:
+  - sneakyvendor/aws-shared-defaults
 - name: github.com/go-ini/ini
-  version: e7fea39b01aea8d5671f6858f0532f56e8bff3a5
+  version: 32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a
 - name: github.com/hashicorp/hcl
   version: 392dba7d905ed5d04a5794ba89f558b27e2ba1ca
   subpackages:

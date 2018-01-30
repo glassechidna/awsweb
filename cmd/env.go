@@ -17,11 +17,15 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/glassechidna/awsweb/shared"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"strings"
 	"os"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	"github.com/pquerna/otp/totp"
+	"time"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/glassechidna/awscredcache"
 )
 
 // envCmd represents the env command
@@ -42,12 +46,7 @@ func init() {
 				profile = args[0]
 			}
 
-			profileConfig := shared.ProfileConfig{}
-			if !unset {
-				profileConfig = shared.GetCreds(profile)
-			}
-
-			doEnv(profileConfig, shell, unset)
+			doEnv(getProvider(profile), profile, shell, unset)
 		},
 	}
 
@@ -58,14 +57,52 @@ func init() {
 	viper.BindPFlag("shell", envCmd.PersistentFlags().Lookup("shell"))
 }
 
-func doEnv(profileConfig shared.ProfileConfig, shell string, unset bool) {
-	creds, _ := profileConfig.Credentials.Get()
+func getProvider(profile string) CredRegionProvider {
+	if len(profile) == 0 { return &NoopProvider{} }
+	p := awscredcache.NewAwsCacheCredProvider(profile)
+	p.MfaCodeProvider = func(mfaSecret string) (string, error) {
+		if len(mfaSecret) == 0 {
+			return stscreds.StdinTokenProvider()
+		} else {
+			return totp.GenerateCode(mfaSecret, time.Now())
+		}
+	}
+	return p
+}
+
+type CredRegionProvider interface {
+	Retrieve() (credentials.Value, error)
+	IsExpired() bool
+	Region() string
+}
+
+type NoopProvider struct {}
+
+func (p *NoopProvider) Retrieve() (credentials.Value, error) {
+	env := credentials.EnvProvider{}
+	return env.Retrieve()
+}
+
+func (p *NoopProvider) IsExpired() bool {
+	env := credentials.EnvProvider{}
+	return env.IsExpired()
+}
+
+func (p *NoopProvider) Region() string {
+	region := os.Getenv("AWS_REGION")
+	if len(region) == 0 { region = os.Getenv("AWS_DEFAULT_REGION") }
+	if len(region) == 0 { region = "us-east-1" }
+	return region
+}
+
+func doEnv(profileConfig CredRegionProvider, name, shell string, unset bool) {
+	creds, _ := profileConfig.Retrieve()
 	printEnvVar("AWS_ACCESS_KEY_ID", creds.AccessKeyID, shell, unset)
 	printEnvVar("AWS_SECRET_ACCESS_KEY", creds.SecretAccessKey, shell, unset)
 	printEnvVar("AWS_SESSION_TOKEN", creds.SessionToken, shell, unset)
-	printEnvVar("AWS_DEFAULT_REGION", profileConfig.Region, shell, unset)
-	printEnvVar("AWS_REGION", profileConfig.Region, shell, unset)
-	printEnvVar("AWSWEB_PROFILE", profileConfig.Name, shell, unset)
+	printEnvVar("AWS_DEFAULT_REGION", profileConfig.Region(), shell, unset)
+	printEnvVar("AWS_REGION", profileConfig.Region(), shell, unset)
+	printEnvVar("AWSWEB_PROFILE", name, shell, unset)
 }
 
 func printExplanation(shell string) {
