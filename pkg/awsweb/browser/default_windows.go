@@ -23,11 +23,15 @@ func browserForRegistry(name string) Browser {
 
 func DefaultBrowser() (Browser, error) {
 	k, err := registry.OpenKey(registry.CURRENT_USER, `SOFTWARE\Microsoft\Windows\Shell\Associations\URLAssociations\http\UserChoice`, registry.QUERY_VALUE)
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	defer k.Close()
 
 	s, _, err := k.GetStringValue("ProgId")
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 
 	return browserForRegistry(s), nil
 }

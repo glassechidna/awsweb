@@ -15,9 +15,9 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/glassechidna/awsweb/pkg/awsweb/browser"
 	"github.com/glassechidna/awsweb/pkg/awsweb"
+	"github.com/glassechidna/awsweb/pkg/awsweb/browser"
+	"github.com/spf13/cobra"
 )
 
 func init() {

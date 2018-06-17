@@ -1,12 +1,12 @@
 package awsweb
 
 import (
-	"github.com/glassechidna/awscredcache"
-	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
-	"github.com/pquerna/otp/totp"
-	"time"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
+	"github.com/glassechidna/awscredcache"
+	"github.com/pquerna/otp/totp"
 	"os"
+	"time"
 )
 
 func GetProvider(profile string) CredRegionProvider {

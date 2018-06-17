@@ -17,11 +17,11 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/glassechidna/awsweb/pkg/awsweb"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"strings"
 	"os"
-	"github.com/glassechidna/awsweb/pkg/awsweb"
+	"strings"
 )
 
 // envCmd represents the env command

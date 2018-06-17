@@ -1,8 +1,8 @@
 package browser
 
 import (
-	"strings"
 	"os/exec"
+	"strings"
 )
 
 func winCmd(name, url string, extraArgs []string) {

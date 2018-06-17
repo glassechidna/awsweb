@@ -15,10 +15,10 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/glassechidna/awscredcache/sneakyvendor/aws-shared-defaults"
-	"github.com/go-ini/ini"
 	"github.com/glassechidna/awsweb/pkg/awsweb"
+	"github.com/go-ini/ini"
+	"github.com/spf13/cobra"
 )
 
 func init() {

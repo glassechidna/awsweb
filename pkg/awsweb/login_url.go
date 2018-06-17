@@ -1,10 +1,10 @@
 package awsweb
 
 import (
-	"net/http"
-	"time"
 	"encoding/json"
+	"net/http"
 	"net/url"
+	"time"
 )
 
 type SigninTokenResponse struct {

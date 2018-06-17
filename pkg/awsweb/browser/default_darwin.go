@@ -1,12 +1,12 @@
 package browser
 
 import (
+	"github.com/DHowett/go-plist"
+	"github.com/mitchellh/go-homedir"
+	"os"
 	"os/exec"
 	"strconv"
-	"github.com/mitchellh/go-homedir"
 	"strings"
-	"github.com/DHowett/go-plist"
-	"os"
 )
 
 func cliString(inp ...string) string {
@@ -33,7 +33,7 @@ func plistPath() string {
 
 type plistStruct struct {
 	LSHandlers []struct {
-		LSHandlerRoleAll string
+		LSHandlerRoleAll   string
 		LSHandlerURLScheme string
 	}
 }
