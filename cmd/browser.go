@@ -16,11 +16,8 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"time"
-	"encoding/json"
-	"net/url"
-	"net/http"
 	"github.com/glassechidna/awsweb/pkg/awsweb/browser"
+	"github.com/glassechidna/awsweb/pkg/awsweb"
 )
 
 func init() {
@@ -40,56 +37,17 @@ func init() {
 				profile = args[1]
 			}
 
-			doBrowser(getProvider(profile), browserName, profile)
+			doBrowser(awsweb.GetProvider(profile), browserName, profile)
 		},
 	}
 
 	RootCmd.AddCommand(browserCmd)
 }
 
-type SigninTokenResponse struct {
-	SigninToken string
-}
-
-func getJson(url string, target interface{}) error {
-	var myClient = &http.Client{Timeout: 10 * time.Second}
-
-	r, err := myClient.Get(url)
-	if err != nil {
-		return err
-	}
-	defer r.Body.Close()
-
-	return json.NewDecoder(r.Body).Decode(target)
-}
-
-func doBrowser(provider CredRegionProvider, browserName, name string) {
-	loginUrl := getLoginUrl(provider)
+func doBrowser(provider awsweb.CredRegionProvider, browserName, name string) {
+	loginUrl := awsweb.GetLoginUrl(provider)
 	b, _ := browserByName(browserName)
 	b.Launch(loginUrl, name)
-}
-
-func getLoginUrl(provider CredRegionProvider) string {
-	creds, _ := provider.Retrieve()
-
-	sessionJsonMap := map[string]string{
-		"sessionId":    creds.AccessKeyID,
-		"sessionKey":   creds.SecretAccessKey,
-		"sessionToken": creds.SessionToken,
-	}
-
-	sessionJson, _ := json.Marshal(sessionJsonMap)
-	sessionJsonEscaped := url.QueryEscape(string(sessionJson))
-
-	getSigninTokenUrl := "https://signin.aws.amazon.com/federation?Action=getSigninToken&SessionType=json&Session=" + sessionJsonEscaped
-	signinTokenResponse := new(SigninTokenResponse)
-	getJson(getSigninTokenUrl, signinTokenResponse)
-	escapedSigninToken := url.QueryEscape(signinTokenResponse.SigninToken)
-
-	destinationUrl := "https://" + provider.Region() + ".console.aws.amazon.com/"
-	loginUrl := "https://signin.aws.amazon.com/federation?Action=login&SigninToken=" + escapedSigninToken + "&Destination=" + destinationUrl
-
-	return loginUrl
 }
 
 func browserByName(name string) (browser.Browser, error) {

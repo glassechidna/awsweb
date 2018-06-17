@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/glassechidna/awscredcache/sneakyvendor/aws-shared-defaults"
 	"github.com/go-ini/ini"
+	"github.com/glassechidna/awsweb/pkg/awsweb"
 )
 
 func init() {
@@ -38,7 +39,7 @@ to use a profile's temporary credentials.
 }
 
 func set(profile string) {
-	provider := getProvider(profile)
+	provider := awsweb.GetProvider(profile)
 	creds, _ := provider.Retrieve()
 
 	cfgPath := shareddefaults.SharedConfigFilename()
