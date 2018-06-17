@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"net/url"
 	"net/http"
-	"github.com/glassechidna/awsweb/browser"
+	"github.com/glassechidna/awsweb/pkg/awsweb/browser"
 )
 
 func init() {
