@@ -56,12 +56,12 @@ func httpBundleId() string {
 }
 
 func browserForBundleId(bundleId string) (Browser, error) {
-	switch bundleId {
+	switch strings.ToLower(bundleId) {
 	case "org.mozilla.firefox":
 		return &MozillaFirefox{}, nil
-	//case "com.apple.Safari":
+	//case "com.apple.safari":
 	//	return &AppleSafari{}, nil
-	case "com.google.Chrome":
+	case "com.google.chrome":
 		return &GoogleChrome{}, nil
 	default:
 		return nil, nil
