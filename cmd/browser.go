@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/glassechidna/awsweb/pkg/awsweb"
 	"github.com/glassechidna/awsweb/pkg/awsweb/browser"
 	"github.com/spf13/cobra"
@@ -29,6 +30,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			browserName := ""
 			profile := ""
+			noOpen, _ := cmd.PersistentFlags().GetBool("no-open")
 
 			if len(args) == 1 {
 				profile = args[0]
@@ -37,17 +39,20 @@ func init() {
 				profile = args[1]
 			}
 
-			doBrowser(awsweb.GetProvider(profile), browserName, profile)
+			provider := awsweb.GetProvider(profile)
+			loginUrl := awsweb.GetLoginUrl(provider)
+
+			if noOpen {
+				fmt.Println(loginUrl)
+			} else {
+				b, _ := browserByName(browserName)
+				b.Launch(loginUrl, profile)
+			}
 		},
 	}
 
+	browserCmd.PersistentFlags().Bool("no-open", false, "Disable opening a browser")
 	RootCmd.AddCommand(browserCmd)
-}
-
-func doBrowser(provider awsweb.CredRegionProvider, browserName, name string) {
-	loginUrl := awsweb.GetLoginUrl(provider)
-	b, _ := browserByName(browserName)
-	b.Launch(loginUrl, name)
 }
 
 func browserByName(name string) (browser.Browser, error) {
