@@ -30,28 +30,35 @@ Modifies the "default" entry in ~/.aws/config and ~/.aws/credentials
 to use a profile's temporary credentials.
 `,
 		Run: func(cmd *cobra.Command, args []string) {
-			profile := args[0]
-			set(profile)
+			dst, _ := cmd.PersistentFlags().GetString("dst-profile")
+			src, _ := cmd.PersistentFlags().GetString("src-profile")
+			if len(src) == 0 { // backwards compat
+				src = args[0]
+			}
+
+			set(src, dst)
 		},
 	}
 
+	setCmd.PersistentFlags().StringP("src-profile", "s", "", "")
+	setCmd.PersistentFlags().StringP("dst-profile", "d", "default", "")
 	RootCmd.AddCommand(setCmd)
 }
 
-func set(profile string) {
-	provider := awsweb.GetProvider(profile)
+func set(srcProfile, dstProfile string) {
+	provider := awsweb.GetProvider(srcProfile)
 	creds, _ := provider.Retrieve()
 
 	cfgPath := shareddefaults.SharedConfigFilename()
 	cfgIni, _ := ini.Load(cfgPath)
 
-	cfgSect := cfgIni.Section("default")
+	cfgSect := cfgIni.Section(dstProfile)
 	cfgSect.NewKey("region", provider.Region())
 
 	credPath := shareddefaults.SharedCredentialsFilename()
 	credIni, _ := ini.Load(credPath)
 
-	credSect := credIni.Section("default")
+	credSect := credIni.Section(dstProfile)
 	credSect.NewKey("aws_access_key_id", creds.AccessKeyID)
 	credSect.NewKey("aws_secret_access_key", creds.SecretAccessKey)
 	credSect.NewKey("aws_session_token", creds.SessionToken)
