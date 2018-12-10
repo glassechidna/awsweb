@@ -7,7 +7,7 @@ require (
 	github.com/boombuler/barcode v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
-	github.com/glassechidna/awscredcache v0.0.0-20180324063114-8def02b6f71b
+	github.com/glassechidna/awscredcache v0.0.0-20181210082742-b8a39717034d
 	github.com/go-ini/ini v1.37.0
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce // indirect
