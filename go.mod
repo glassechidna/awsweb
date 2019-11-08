@@ -3,7 +3,7 @@ module github.com/glassechidna/awsweb
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/DHowett/go-plist v0.0.0-20180609054337-500bd5b9081b
-	github.com/aws/aws-sdk-go v1.14.8
+	github.com/aws/aws-sdk-go v1.25.30
 	github.com/boombuler/barcode v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
@@ -12,7 +12,6 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
 	github.com/hashicorp/hcl v0.0.0-20180404174102-ef8a98b0bbce // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/jmespath/go-jmespath v0.0.0-20160202185014-0b12d6b521d8 // indirect
 	github.com/jtolds/gls v4.2.1+incompatible // indirect
 	github.com/magiconair/properties v1.8.0 // indirect
 	github.com/mitchellh/go-homedir v0.0.0-20180523094522-3864e76763d9
