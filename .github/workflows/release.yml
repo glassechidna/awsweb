@@ -13,4 +13,5 @@ jobs:
           version: latest
           args: release
         env:
+          CGO_ENABLED: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
