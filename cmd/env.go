@@ -49,7 +49,7 @@ func init() {
 	RootCmd.AddCommand(envCmd)
 
 	envCmd.Flags().Bool("unset", false, "Generate output to unset env vars")
-	envCmd.PersistentFlags().StringP("shell", "", "", "One of powershell, cmd, or bash")
+	envCmd.PersistentFlags().StringP("shell", "", "", "One of powershell, cmd, docker or bash")
 	viper.BindPFlag("shell", envCmd.PersistentFlags().Lookup("shell"))
 }
 
