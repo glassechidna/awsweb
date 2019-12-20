@@ -53,6 +53,19 @@ Also `awsweb set mycompany-prod` will update the default profile (in `~/.aws/con
 
 Temporary credentials last for 1 hour and are cached in `~/.aws/awswebcache`
 
+### Handy bash aliases
+
+```
+alias ab='awsweb browser'
+
+awsenv() {
+  eval $(awsweb env "$@")
+}
+
+alias ae='awsenv'
+```
+eg: `ae mycompany-prod` to set `AWS-*` environment variables.
+
 ### Powershell
 
 If you're using Powershell, you can do:
