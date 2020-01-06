@@ -23,7 +23,7 @@ import (
 // validateCmd represents the validate command
 var validateCmd = &cobra.Command{
 	Use:   "validate",
-	Short: "Check if your AWS config is good to good with awsweb",
+	Short: "Check if your AWS config is good to go with awsweb",
 	Run: func(cmd *cobra.Command, args []string) {
 		// TODO: Work your own magic here
 		fmt.Println("validate called")

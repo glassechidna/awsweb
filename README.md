@@ -47,8 +47,24 @@ mfa_serial = arn:aws:iam::0987654321:mfa/aidan.steele@example.com
 
 ## Usage
 
-You can then do `awsweb browser mycompany-prod` and a browser window will pop up. Or 
-`eval "$(awsweb env mycompany-prod)"`.
+You can then do `awsweb browser mycompany-prod` and a browser window will pop up.  
+Or `eval "$(awsweb env mycompany-prod)"` to set `AWS_*` environment variables.  
+Also `awsweb set mycompany-prod` will update the default profile (in `~/.aws/config` and `~/.aws/credentials`) with the temporary credentials.
+
+Temporary credentials last for 1 hour and are cached in `~/.aws/awswebcache`
+
+### Handy bash aliases
+
+```
+alias ab='awsweb browser'
+
+awsenv() {
+  eval $(awsweb env "$@")
+}
+
+alias ae='awsenv'
+```
+eg: `ae mycompany-prod` to set `AWS-*` environment variables.
 
 ### Powershell
 
