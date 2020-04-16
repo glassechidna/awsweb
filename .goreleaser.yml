@@ -1,0 +1,48 @@
+builds:
+  - env: [CGO_ENABLED=0]
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch: [amd64]
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+nfpms:
+  - vendor: awsweb
+    homepage: https://github.com/glassechidna/awsweb
+    maintainer: Aidan Steele <aidan.steele@glassechidna.com.au>
+    description: awsweb is a tool for hopping between AWS roles with ease
+    formats: [deb]
+brews:
+  - github:
+      owner: glassechidna
+      name: homebrew-taps
+    commit_author:
+      name: Aidan Steele
+      email: aidan.steele@glassechidna.com.au
+    homepage: https://github.com/glassechidna/awsweb
+    description: awsweb is a tool for hopping between AWS roles with ease
+scoop:
+  bucket:
+    owner: glassechidna
+    name: scoop-bucket
+  commit_author:
+    name: Aidan Steele
+    email: aidan.steele@glassechidna.com.au
+  homepage: https://github.com/glassechidna/awsweb
+  description: awsweb is a tool for hopping between AWS roles with ease
+  license: Apache
