@@ -14,6 +14,12 @@ page. Download the binary for your platform and place it somewhere in your `PATH
 
 [github-releases]: https://github.com/glassechidna/awsweb/releases
 
+Or, via homebrew:
+```
+brew tap glassechidna/taps
+brew install awsweb
+```
+
 ## Setup
 
 Your `~/.aws/config` should *already* look something like this:
@@ -48,7 +54,7 @@ mfa_serial = arn:aws:iam::0987654321:mfa/aidan.steele@example.com
 ## Usage
 
 You can then do `awsweb browser mycompany-prod` and a browser window will pop up.  
-Or `eval "$(awsweb env mycompany-prod)"` to set `AWS_*` environment variables.  
+Or `eval "$(awsweb env mycompany-prod)"` to set `AWS_*` environment variables for profile *mycompany-prod*.  
 Also `awsweb set mycompany-prod` will update the default profile (in `~/.aws/config` and `~/.aws/credentials`) with the temporary credentials.
 
 Temporary credentials last for 1 hour and are cached in `~/.aws/awswebcache`
@@ -64,7 +70,7 @@ awsenv() {
 
 alias ae='awsenv'
 ```
-eg: `ae mycompany-prod` to set `AWS-*` environment variables.
+eg: `ae mycompany-prod` to set `AWS-*` environment variables for profile *mycompany-prod*.
 
 ### Powershell
 
